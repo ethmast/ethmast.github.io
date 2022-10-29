@@ -10,8 +10,16 @@ ul {
 .nav-item {
     display: inline-block;
     background: rgb(48, 73, 255);
-    padding: 15px;
+    /* padding: 15px; */
     border-radius: 10px;
+    /* width: 70px; */
+}
+
+.nav-item a:any-link {
+    display: inline-block;
+    text-decoration: none;
+    color: orange;
+    padding: 15px;
     width: 70px;
 }
 
