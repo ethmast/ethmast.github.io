@@ -1,0 +1,13 @@
+.updates-list {
+    text-align: center;
+    padding-top: 50px;
+}
+
+.header-bg {
+    background: linear-gradient(to bottom right, green, rgb(0, 156, 104));
+    position: absolute;
+    top: 0px;
+    width: 100vw;
+    height: 90px;
+    z-index: -1;
+}

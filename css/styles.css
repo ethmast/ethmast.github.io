@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Petit+Formal+Script&display=swap');
+
 body {
-    background: rgb(179, 179, 179)
+    background: rgb(179, 179, 179);
+    margin: 0;
 }
 
 ul {
@@ -7,22 +10,85 @@ ul {
     padding: 0;
 }
 
+.logo>img {
+    height: 80px;
+}
+
+header {
+    display: flex !important;
+    flex-flow: row nowrap;
+    max-width: 1000px;
+    margin: auto;
+    margin-top: 5px;
+    top: 5px;
+}
+
+.header-nav {
+    margin-left: auto;
+    margin-top: 8px;
+}
+
+.nav-list {
+    display: flex;
+}
+
+li {
+    list-style: none;
+}
+
 .nav-item {
-    display: inline-block;
     background: rgb(48, 73, 255);
-    /* padding: 15px; */
-    border-radius: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    border-radius: 20px;
+    list-style: none;
+    margin-left: 15px;
+    border: 0px;
     /* width: 70px; */
 }
 
 .nav-item a:any-link {
-    display: inline-block;
     text-decoration: none;
     color: orange;
-    padding: 15px;
-    width: 70px;
 }
 
-.banner {
+.hero {
+    background: linear-gradient(to bottom right, green, rgb(0, 156, 104));
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 80vh;
+    min-height: 600px;
+    z-index: -1;
+}
+
+.hero-welcome {
+    font-family: 'Petit Formal Script', cursive;
+    font-size: 100px;
+    position: relative;
+    top: 100px;
     text-align: center;
+}
+
+.portrait-pic {
+    width: 300px;
+    position: absolute;
+    top: 200px;
+}
+
+.portrait-text {
+    position: absolute;
+    top: 100px;
+}
+
+.portrait-container {
+    display: flex;
+    justify-content: center;
+}
+
+.footer {
+    position: absolute;
+    top: 10000px;
 }
