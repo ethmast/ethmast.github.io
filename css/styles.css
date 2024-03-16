@@ -28,6 +28,15 @@ header {
     margin-top: 8px;
 }
 
+.header-bg {
+    background: linear-gradient(to bottom right, green, rgb(0, 156, 104));
+    position: absolute;
+    top: 0px;
+    width: 100vw;
+    height: 90px;
+    z-index: -1;
+}
+
 .nav-list {
     display: flex;
 }
