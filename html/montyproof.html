@@ -19,9 +19,19 @@
   </header>
   <div class="header-bg"></div>
 <body>
+  <div class="main-content">
     <h1 class="welcome"><i>Welcome to Monty's Hall</i></h1>
-    <h2>Select one of the buttons below</h1>
-    <h4>Player does not switch his guess after <br>the game host reveals an empty door.</h4>
+    <p>
+      <img class="monty-pic" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Monty-LeftCar.svg/1280px-Monty-LeftCar.svg.png" alt="Picture of the 3 doors in the Monty Hall problem">
+      <a href="https://simple.wikipedia.org/wiki/Monty_Hall_problem">According to Wikipedia, </a>
+      In the Monty Hall problem there are three doors.
+      A car (prize of high value) is behind one door and goats (booby prizes of low value)
+      are behind the other two doors. First, the player chooses a door but does not open it.
+      Then the host opens a different door. The host knows what is behind every door, and always chooses a door with a goat behind it.
+      Last, the player chooses whether to keep what is behind the original door or to change to the remaining door (the one the host did not open).
+    </p>
+    <h2>Is it better to switch or stay?</h1>
+    <h4>Player does not switch his guess after <br>the game host reveals a goat door.</h4>
     <button type="button" onclick="hall()">Run the Simulation</button>
     <p id="hallExplain"></p>
     <p id="hallOutput"></p>
@@ -33,6 +43,7 @@
     <button type="button" onclick="fall()">Run the Simulation</button>
     <p id="fallExplain"></p>
     <p id="fallOutput"></p>
+  </div>
 </body>
 <script type="text/javascript" src="../javascript/montyproof.js"></script>
 </html>

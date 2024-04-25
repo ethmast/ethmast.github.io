@@ -1,3 +1,8 @@
 .welcome {
     text-align: center;
 }
+
+.monty-pic {
+    height: 150px;
+    float: right;
+}
