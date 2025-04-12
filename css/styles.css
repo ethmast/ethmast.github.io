@@ -39,12 +39,14 @@ header {
     position: absolute;
     top: 0px;
     width: 100vw;
+    min-width: 412px;
     height: 90px;
     z-index: -1;
 }
 
 .nav-list {
     display: flex;
+    margin-right: 10px;
 }
 
 li {
