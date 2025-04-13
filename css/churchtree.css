@@ -1,8 +1,23 @@
 /* * {margin: 0; padding: 0;} */
 
+.dead {
+	background: tomato;
+	color: black !important;
+}
+
+.merged {
+	background: skyblue;
+	color: black !important;
+}
+
+body {
+	overflow: hidden;
+	max-width: 100vw;
+}
+
 .tree {
 	text-align: center;
-	min-width: 1200px;
+	min-width: 1500px;
 	width: auto;
 	height: 100vh;
 	white-space: nowrap;
