@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Among Us Role Selector</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .container {
+            background-color: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            color: #ff0000;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ccc;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .button:hover {
+            background-color: #cc0000;
+        }
+        
+        #roleScreen, #waitScreen {
+            display: none;
+        }
+        
+        .role-container {
+            margin: 30px 0;
+        }
+        
+        #roleText {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        #taskText {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .role-imposter {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        
+        .role-crewmate {
+            color: #00aaff;
+            font-weight: bold;
+        }
+        
+        .role-hidden {
+            color: #888;
+            font-style: italic;
+        }
+        
+        .visual-task {
+            color: #00ff00;
+        }
+        
+        .progress {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #333;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .summary {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .summary p {
+            margin: 5px 0;
+        }
+        
+        .summary strong {
+            color: #ff9900;
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        /* Animation for role reveal */
+        @keyframes reveal {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .reveal-animation {
+            animation: reveal 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="setupScreen">
+            <h1>Among Us Role Selector</h1>
+            <div class="form-group">
+                <label for="totalPlayers">Total Number of Players (4-20):</label>
+                <input type="number" id="totalPlayers" min="4" max="20" value="10">
+                <div id="totalError" class="error">Total players must be between 4 and 15</div>
+            </div>
+            <div class="form-group">
+                <label for="imposters">Number of Imposters (1-7):</label>
+                <input type="number" id="imposters" min="1" max="7" value="2">
+                <div id="imposterError" class="error">Invalid number of imposters</div>
+            </div>
+            <div class="form-group">
+                <label for="visualTasks">Number of Visual Tasks (0-10):</label>
+                <input type="number" id="visualTasks" min="0" max="10" value="3">
+                <div id="taskError" class="error">Invalid number of visual tasks</div>
+            </div>
+            <button id="startButton" class="button">Start Game</button>
+        </div>
+        
+        <!-- Role Screen -->
+        <div id="roleScreen">
+            <div class="progress" id="playerProgress">Player 1/10</div>
+            <h1>Player Role</h1>
+            <div class="role-container">
+                <div id="hiddenRole" class="role-hidden">Your role is hidden</div>
+                <div id="roleText" style="display: none;"></div>
+                <div id="taskText" style="display: none;"></div>
+            </div>
+            <button id="revealButton" class="button">Reveal Role</button>
+            <button id="continueButton" class="button" style="display: none;">Press Before Passing Device</button>
+        </div>
+        
+        <!-- Wait Screen -->
+        <div id="waitScreen" style="display: none;">
+            <h1>Pass the Device</h1>
+            <p>Please pass the device to the next player</p>
+            <button id="nextPlayerButton" class="button">Next Player</button>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" style="display: none;">
+            <h1>Game Ready!</h1>
+            <p>All players have received their roles.</p>
+            <div class="summary">
+                <p><strong>Game Summary:</strong></p>
+                <p>Total Players: <span id="summaryPlayers">0</span></p>
+                <p>Imposters Assigned: <span id="summaryImposters">0</span></p>
+                <p>Visual Tasks Assigned: <span id="summaryTasks">0</span></p>
+            </div>
+            <p>Good luck and have fun!</p>
+            <button id="newGameButton" class="button">New Game</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let totalPlayers = 10;
+        let imposterCount = 2;
+        let visualTaskCount = 3;
+        let currentPlayer = 0;
+        
+        // Arrays to track assignments
+        let assignedImposters = 0;
+        let assignedVisualTasks = 0;
+        
+        // DOM Elements
+        const setupScreen = document.getElementById('setupScreen');
+        const roleScreen = document.getElementById('roleScreen');
+        const waitScreen = document.getElementById('waitScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const playerProgress = document.getElementById('playerProgress');
+        const hiddenRole = document.getElementById('hiddenRole');
+        const roleText = document.getElementById('roleText');
+        const taskText = document.getElementById('taskText');
+        
+        // Buttons
+        const startButton = document.getElementById('startButton');
+        const revealButton = document.getElementById('revealButton');
+        const continueButton = document.getElementById('continueButton');
+        const nextPlayerButton = document.getElementById('nextPlayerButton');
+        const newGameButton = document.getElementById('newGameButton');
+        
+        // Input fields
+        const totalPlayersInput = document.getElementById('totalPlayers');
+        const impostersInput = document.getElementById('imposters');
+        const visualTasksInput = document.getElementById('visualTasks');
+        
+        // Error messages
+        const totalError = document.getElementById('totalError');
+        const imposterError = document.getElementById('imposterError');
+        const taskError = document.getElementById('taskError');
+        
+        // Start game
+        startButton.addEventListener('click', function() {
+            // Validate inputs
+            totalPlayers = parseInt(totalPlayersInput.value);
+            imposterCount = parseInt(impostersInput.value);
+            visualTaskCount = parseInt(visualTasksInput.value);
+            
+            // Reset error messages
+            totalError.style.display = 'none';
+            imposterError.style.display = 'none';
+            taskError.style.display = 'none';
+            
+            let hasErrors = false;
+            
+            // Validate total players
+            if (totalPlayers < 4 || totalPlayers > 20) {
+                totalError.style.display = 'block';
+                hasErrors = true;
+            }
+            
+            // Validate imposter count based on total players
+            let maxImposters = Math.max(1, Math.min(7, Math.floor(totalPlayers / 2)));
+            
+            if (imposterCount < 1 || imposterCount > maxImposters) {
+                imposterError.textContent = `Imposters must be between 1 and ${maxImposters}`;
+                imposterError.style.display = 'block';
+                hasErrors = true;
+            }
+            
+            // Validate visual tasks
+            if (visualTaskCount < 0 || visualTaskCount > 10 || visualTaskCount > totalPlayers - imposterCount) {
+                taskError.textContent = `Visual tasks must be between 0 and ${Math.min(10, totalPlayers - imposterCount)}`;
+                taskError.style.display = 'block';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) {
+                return;
+            }
+            
+            // Initialize game variables
+            currentPlayer = 1;
+            assignedImposters = 0;
+            assignedVisualTasks = 0;
+            
+            // Update player progress
+            playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
+            
+            // Switch to role screen
+            setupScreen.style.display = 'none';
+            roleScreen.style.display = 'block';
+        });
+        
+        // Reveal role
+        revealButton.addEventListener('click', function() {
+            // Hide reveal button and show continue button
+            revealButton.style.display = 'none';
+            continueButton.style.display = 'block';
+            
+            // Hide the hidden role text
+            hiddenRole.style.display = 'none';
+            
+            // Determine if this player is an imposter
+            let isImposter = false;
+            let hasVisualTask = false;
+            
+            // Check if we still need to assign imposters
+            if (assignedImposters < imposterCount) {
+                // Calculate probability based on remaining players and imposters
+                const remainingPlayers = totalPlayers - currentPlayer + 1;
+                const remainingImposters = imposterCount - assignedImposters;
+                const probability = remainingImposters / remainingPlayers;
+                
+                // Randomly determine if this player is an imposter
+                if (Math.random() < probability) {
+                    isImposter = true;
+                    assignedImposters++;
+                }
+            }
+            
+            // If not an imposter, check for visual task
+            if (!isImposter && assignedVisualTasks < visualTaskCount) {
+                // Calculate probability based on remaining non-imposter players and tasks
+                const remainingCrewmates = (totalPlayers - currentPlayer + 1) - (imposterCount - assignedImposters);
+                const remainingTasks = visualTaskCount - assignedVisualTasks;
+                const probability = remainingTasks / remainingCrewmates;
+                
+                // Randomly determine if this player has a visual task
+                if (Math.random() < probability) {
+                    hasVisualTask = true;
+                    assignedVisualTasks++;
+                }
+            }
+            
+            // Display role
+            roleText.style.display = 'block';
+            roleText.className = isImposter ? 'role-imposter reveal-animation' : 'role-crewmate reveal-animation';
+            roleText.textContent = isImposter ? 'You are an IMPOSTER!' : 'You are a CREWMATE!';
+            
+            // Display task status (only for crewmates)
+            taskText.style.display = 'block';
+            taskText.className = hasVisualTask ? 'visual-task reveal-animation' : '';
+            taskText.textContent = isImposter ? 'Sabotage and eliminate the crew!' : 
+                (hasVisualTask ? 'You have a VISUAL TASK!' : 'You do not have a visual task.');
+        });
+        
+        // Continue to next player
+        continueButton.addEventListener('click', function() {
+            // If this was the last player, show game over screen
+            if (currentPlayer >= totalPlayers) {
+                roleScreen.style.display = 'none';
+                
+                // Update summary
+                document.getElementById('summaryPlayers').textContent = totalPlayers;
+                document.getElementById('summaryImposters').textContent = assignedImposters;
+                document.getElementById('summaryTasks').textContent = assignedVisualTasks;
+                
+                gameOverScreen.style.display = 'block';
+            } else {
+                // Reset role screen for next player
+                currentPlayer++;
+                playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
+                
+                hiddenRole.style.display = 'block';
+                roleText.style.display = 'none';
+                taskText.style.display = 'none';
+                revealButton.style.display = 'block';
+                continueButton.style.display = 'none';
+            }
+        });
+        
+        // Next player button - now unused as we removed the wait screen
+        nextPlayerButton.addEventListener('click', function() {
+            currentPlayer++;
+            playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
+            
+            // Reset role screen
+            hiddenRole.style.display = 'block';
+            roleText.style.display = 'none';
+            taskText.style.display = 'none';
+            revealButton.style.display = 'block';
+            continueButton.style.display = 'none';
+            
+            // Hide wait screen, show role screen
+            waitScreen.style.display = 'none';
+            roleScreen.style.display = 'block';
+        });
+        
+        // New game
+        newGameButton.addEventListener('click', function() {
+            gameOverScreen.style.display = 'none';
+            setupScreen.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
