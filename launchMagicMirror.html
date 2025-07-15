@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Fullscreen Launcher</title>
+  <script>
+    // Request fullscreen
+    document.addEventListener('DOMContentLoaded', function () {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      // Redirect after short delay (allows fullscreen to kick in)
+      setTimeout(() => {
+        location.href = "http://192.168.7.110:8080";
+      }, 5000);
+    });
+  </script>
+</head>
+<body>
+  <p>Launching fullscreen site...</p>
+</body>
+</html>
