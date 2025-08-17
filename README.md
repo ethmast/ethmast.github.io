@@ -1,8 +1,8 @@
 # My Personal Project Website
 
-[![Website Status](https://img.shields.io/website?label=ethmast.github.io&up_message=online&down_message=offline&url=https%3A%2F%2Fethmast.github.io%2F)](https://ethmast.github.io/)
+[![Website Status](https://img.shields.io/website?label=lavernmast.com&up_message=online&down_message=offline&url=https%3A%2F%2Flavernmast.com%2F)](https://lavernmast.com)
 
-**Live Site:** [https://ethmast.github.io/](https://ethmast.github.io/)
+**Live Site:** [https://lavernmast.com/](https://lavernmast.com/)
 
 ## About This Site
 
