@@ -215,9 +215,9 @@
         let visualTaskCount = 3;
         let currentPlayer = 0;
         
-        // Arrays to track assignments
-        let assignedImposters = 0;
-        let assignedVisualTasks = 0;
+        // This array will hold the pre-assigned roles for all players
+        // Structure: [{ role: 'imposter', hasTask: false }, { role: 'crewmate', hasTask: true }, ...]
+        let gameDeck = [];
         
         // DOM Elements
         const setupScreen = document.getElementById('setupScreen');
@@ -245,6 +245,15 @@
         const totalError = document.getElementById('totalError');
         const imposterError = document.getElementById('imposterError');
         const taskError = document.getElementById('taskError');
+
+        // --- HELPER FUNCTION: Fisher-Yates Shuffle ---
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
         
         // Start game
         startButton.addEventListener('click', function() {
@@ -266,9 +275,8 @@
                 hasErrors = true;
             }
             
-            // Validate imposter count based on total players
+            // Validate imposter count
             let maxImposters = Math.max(1, Math.min(7, Math.floor(totalPlayers / 2)));
-            
             if (imposterCount < 1 || imposterCount > maxImposters) {
                 imposterError.textContent = `Imposters must be between 1 and ${maxImposters}`;
                 imposterError.style.display = 'block';
@@ -276,20 +284,50 @@
             }
             
             // Validate visual tasks
-            if (visualTaskCount < 0 || visualTaskCount > 10 || visualTaskCount > totalPlayers - imposterCount) {
-                taskError.textContent = `Visual tasks must be between 0 and ${Math.min(10, totalPlayers - imposterCount)}`;
+            // Max tasks cannot exceed number of Crewmates (Total - Imposters)
+            let maxTasks = totalPlayers - imposterCount;
+            if (visualTaskCount < 0 || visualTaskCount > 10 || visualTaskCount > maxTasks) {
+                taskError.textContent = `Visual tasks must be between 0 and ${Math.min(10, maxTasks)}`;
                 taskError.style.display = 'block';
                 hasErrors = true;
             }
             
-            if (hasErrors) {
-                return;
-            }
+            if (hasErrors) return;
             
+            // --- GENERATE THE DECK (PRE-CALCULATION) ---
+            gameDeck = [];
+            
+            // 1. Create Role Array
+            let roles = [];
+            for (let i = 0; i < imposterCount; i++) roles.push('imposter');
+            for (let i = 0; i < (totalPlayers - imposterCount); i++) roles.push('crewmate');
+            
+            // 2. Shuffle Roles
+            shuffleArray(roles);
+            
+            // 3. Assign Tasks specifically to crewmates
+            // Find indices of crewmates
+            let crewmateIndices = [];
+            roles.forEach((role, index) => {
+                if (role === 'crewmate') crewmateIndices.push(index);
+            });
+            
+            // Shuffle the crewmate indices to decide who gets tasks
+            shuffleArray(crewmateIndices);
+            
+            // Select the first X crewmates to get visual tasks
+            let tasksAssignedIndices = crewmateIndices.slice(0, visualTaskCount);
+            
+            // 4. Build final Game Deck
+            for(let i = 0; i < totalPlayers; i++) {
+                gameDeck.push({
+                    role: roles[i],
+                    hasTask: tasksAssignedIndices.includes(i) // Only true if index matches lucky crewmates
+                });
+            }
+
             // Initialize game variables
             currentPlayer = 1;
-            assignedImposters = 0;
-            assignedVisualTasks = 0;
             
             // Update player progress
             playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
@@ -301,51 +339,22 @@
         
         // Reveal role
         revealButton.addEventListener('click', function() {
-            // Hide reveal button and show continue button
             revealButton.style.display = 'none';
             continueButton.style.display = 'block';
-            
-            // Hide the hidden role text
             hiddenRole.style.display = 'none';
             
-            // Determine if this player is an imposter
-            let isImposter = false;
-            let hasVisualTask = false;
-            
-            // Check if we still need to assign imposters
-            if (assignedImposters < imposterCount) {
-                // Calculate probability based on remaining players and imposters
-                const remainingPlayers = totalPlayers - currentPlayer + 1;
-                const remainingImposters = imposterCount - assignedImposters;
-                const probability = remainingImposters / remainingPlayers;
-                
-                // Randomly determine if this player is an imposter
-                if (Math.random() < probability) {
-                    isImposter = true;
-                    assignedImposters++;
-                }
-            }
-            
-            // If not an imposter, check for visual task
-            if (!isImposter && assignedVisualTasks < visualTaskCount) {
-                // Calculate probability based on remaining non-imposter players and tasks
-                const remainingCrewmates = (totalPlayers - currentPlayer + 1) - (imposterCount - assignedImposters);
-                const remainingTasks = visualTaskCount - assignedVisualTasks;
-                const probability = remainingTasks / remainingCrewmates;
-                
-                // Randomly determine if this player has a visual task
-                if (Math.random() < probability) {
-                    hasVisualTask = true;
-                    assignedVisualTasks++;
-                }
-            }
+            // --- GET DATA FROM PRE-CALCULATED DECK ---
+            // We use (currentPlayer - 1) because array is 0-indexed
+            const playerData = gameDeck[currentPlayer - 1];
+            const isImposter = playerData.role === 'imposter';
+            const hasVisualTask = playerData.hasTask;
             
             // Display role
             roleText.style.display = 'block';
             roleText.className = isImposter ? 'role-imposter reveal-animation' : 'role-crewmate reveal-animation';
             roleText.textContent = isImposter ? 'You are an IMPOSTER!' : 'You are a CREWMATE!';
             
-            // Display task status (only for crewmates)
+            // Display task status
             taskText.style.display = 'block';
             taskText.className = hasVisualTask ? 'visual-task reveal-animation' : '';
             taskText.textContent = isImposter ? 'Sabotage and eliminate the crew!' : 
@@ -354,18 +363,19 @@
         
         // Continue to next player
         continueButton.addEventListener('click', function() {
-            // If this was the last player, show game over screen
             if (currentPlayer >= totalPlayers) {
                 roleScreen.style.display = 'none';
                 
-                // Update summary
+                // Calculate stats for summary
+                const impostersInGame = gameDeck.filter(p => p.role === 'imposter').length;
+                const tasksInGame = gameDeck.filter(p => p.hasTask).length;
+
                 document.getElementById('summaryPlayers').textContent = totalPlayers;
-                document.getElementById('summaryImposters').textContent = assignedImposters;
-                document.getElementById('summaryTasks').textContent = assignedVisualTasks;
+                document.getElementById('summaryImposters').textContent = impostersInGame;
+                document.getElementById('summaryTasks').textContent = tasksInGame;
                 
                 gameOverScreen.style.display = 'block';
             } else {
-                // Reset role screen for next player
                 currentPlayer++;
                 playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
                 
@@ -376,29 +386,14 @@
                 continueButton.style.display = 'none';
             }
         });
-        
-        // Next player button - now unused as we removed the wait screen
-        nextPlayerButton.addEventListener('click', function() {
-            currentPlayer++;
-            playerProgress.textContent = `Player ${currentPlayer}/${totalPlayers}`;
-            
-            // Reset role screen
-            hiddenRole.style.display = 'block';
-            roleText.style.display = 'none';
-            taskText.style.display = 'none';
-            revealButton.style.display = 'block';
-            continueButton.style.display = 'none';
-            
-            // Hide wait screen, show role screen
-            waitScreen.style.display = 'none';
-            roleScreen.style.display = 'block';
-        });
-        
-        // New game
+
+        // New game button
         newGameButton.addEventListener('click', function() {
             gameOverScreen.style.display = 'none';
             setupScreen.style.display = 'block';
         });
+        
+        // Note: waitScreen logic was removed to streamline the pass-and-play flow
     </script>
 </body>
 </html>
