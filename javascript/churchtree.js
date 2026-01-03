@@ -240,3 +240,75 @@ treeContainer.addEventListener('touchend', function(e) {
         lastTap = currentTime;
     }
 });
+
+// === COLLAPSE/EXPAND TOGGLES ===
+(function setupCollapseToggles() {
+  // Inject styles for toggle icon and collapsed state
+  const style = document.createElement('style');
+  style.textContent = `
+.tree li a { position: relative; }
+.tree li.collapsed > ul { display: none; }
+.tree li a .toggle-icon {
+  position: absolute;
+  right: -11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #94a0b4;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+.tree li a:hover .toggle-icon,
+.tree li.collapsed > a .toggle-icon {
+  display: inline-flex;
+}
+.tree li a .toggle-icon:hover {
+  background: #93ccf5;
+}
+`;
+  document.head.appendChild(style);
+
+  const items = document.querySelectorAll('.tree li');
+  items.forEach(li => {
+    const childList = li.querySelector(':scope > ul');
+    const anchor = li.querySelector(':scope > a');
+    if (!childList || !anchor) return;
+
+    const icon = document.createElement('span');
+    icon.className = 'toggle-icon';
+    icon.setAttribute('role', 'button');
+    icon.setAttribute('aria-label', 'Collapse children');
+    icon.setAttribute('tabindex', '0');
+    icon.textContent = '−';
+
+    // Prevent pan/zoom drag and link navigation when interacting with icon
+    const stopAll = (e) => { e.preventDefault(); e.stopPropagation(); };
+
+    icon.addEventListener('mousedown', stopAll);
+    icon.addEventListener('touchstart', stopAll, { passive: false });
+    icon.addEventListener('click', (e) => {
+      stopAll(e);
+      li.classList.toggle('collapsed');
+      const collapsed = li.classList.contains('collapsed');
+      icon.textContent = collapsed ? '+' : '−';
+      icon.setAttribute('aria-label', collapsed ? 'Expand children' : 'Collapse children');
+    });
+    icon.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        icon.click();
+      }
+    });
+
+    anchor.appendChild(icon);
+  });
+})();
