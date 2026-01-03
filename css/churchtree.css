@@ -6,7 +6,7 @@
 }
 
 .merged {
-	background: skyblue;
+	background: skyblue !important;
 	color: black !important;
 }
 
@@ -96,7 +96,7 @@ right connector from last child*/
 	font-family: arial, verdana, tahoma;
 	font-size: 11px;
 	display: inline-block;
-	
+	background: #b6c4b4;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -109,7 +109,9 @@ right connector from last child*/
 /*Time for some hover effects*/
 /*Will apply the hover effect the the lineage of the element also*/
 .tree li a:hover, .tree li a:hover+ul li a {
-	background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
+	background: #93ccf5;
+	color: #000;
+	border: 1px solid #94a0b4;
 }
 /*Connector styles on hover*/
 .tree li a:hover+ul li::after, 
